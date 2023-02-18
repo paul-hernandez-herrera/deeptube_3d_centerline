@@ -11,3 +11,6 @@ dist/
 
 # dataset
 dataset/
+
+# jupyter notebook for testing
+jupyter_notebook/testing.ipynb
