@@ -14,3 +14,4 @@ dataset/
 
 # jupyter notebook for testing
 jupyter_notebook/testing.ipynb
+jupyter_notebook/.ipynb_checkpoints

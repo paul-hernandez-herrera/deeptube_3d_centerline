@@ -35,7 +35,7 @@ def set_parameters_generate_training_set(obj):
     
     return parameters
 
-def set_parameters_UNET_training():
+def parameters_UNET_training():
     print('------------------------------')
     print('\033[47m' '\033[1m' 'REQUIRED PARAMETERS' '\033[0m')
     print('------------------------------')

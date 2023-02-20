@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset
 from pathlib import Path
-from . import input_output as io
+from .. import input_output as io
 
 class trainingset_dataset_3D(Dataset):
     def __init__(self, folder_input, folder_target):
@@ -25,6 +25,10 @@ class trainingset_dataset_3D(Dataset):
         
         input_img    = io.imread(Path(self.folder_input, self.file_names[index]))
         input_target = io.imread(Path(self.folder_target, self.file_names[index]))
+        
+        #img is a 3D image with [D,W,H], we only have one channel image, change the dimensions to [1,D,W,H]
+        input_img = input_img[None]
+        input_target = input_target[None]
         
         return input_img, input_target
         
