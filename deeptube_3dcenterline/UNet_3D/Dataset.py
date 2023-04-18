@@ -4,19 +4,18 @@ from torch.utils.data import Dataset
 from pathlib import Path
 from .. import input_output as io
 
-class CustomImageDataset3D(Dataset):
+class CustomImageDataset(Dataset):
     def __init__(self, folder_input, folder_target):
-        valid_suffix = [".tif", ".tiff"]
+        valid_suffix = {".tif", ".tiff"}
         
-        #global variables
         self.folder_input = folder_input
         self.folder_target = folder_target
+        self.data_augmentation_flag = False
         
         #variable to list all the files in the training set
         self.file_names = [p.name for p in Path(self.folder_input).iterdir() if p.suffix in valid_suffix]
         
-        #verify each image in input_folder has an associated image in the target folder
-        verify_files_in_target_folder(self.file_names, self.folder_target)        
+        check_trainingset_file_matching(self.file_names, self.folder_target)        
     
     def __len__(self):
         return len(self.file_names)
@@ -35,15 +34,24 @@ class CustomImageDataset3D(Dataset):
         input_img = input_img.unsqueeze(0) if input_img.dim() ==  3 else input_img
         target_img = target_img.unsqueeze(0) if target_img.dim() == 2 else target_img
         
-        return input_img, target_img
+        if self.data_augmentation_flag:
+            input_img, target_img = self.data_augmentation_object.run(input_img, target_img)        
+        
+        return input_img, target_img      
+    
+    def set_data_augmentation(self, augmentation_flag = False, data_augmentation_object = None):
+        """
+        this method is used to set a data augmentation flag and object. 
+        The data_augmentation_flag is a boolean indicating whether data augmentation should be performed or not
+        data_augmentation_object is an object containing the data augmentation methods to be applied.
+        """
+        
+        self.data_augmentation_flag = augmentation_flag
+        self.data_augmentation_object = data_augmentation_object    
         
         
-        
-        
-        
-def verify_files_in_target_folder(file_names, folder_target):
+def check_trainingset_file_matching(file_names, folder_target):
     #verify each image in input_folder has an associated image in the target folder
-    for f in file_names:
-        current_file = Path(folder_target, f)
-        if not(current_file.is_file()):
-            raise ValueError('Missing trace for image: ' + f + '\nRequired file: ' +  str(current_file) + '\n' )
+    missing_files = [f for f in file_names if not Path(folder_target, f).is_file()]
+    if missing_files:
+        raise ValueError('Missing traces for images: ' + ', '.join(missing_files))

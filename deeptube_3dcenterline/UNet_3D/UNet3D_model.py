@@ -1,7 +1,7 @@
 import torch.nn as nn
 from  . import unet3d_core 
 
-class UNet_3D(nn.Module):
+class Classic_UNet_3D(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
         #this block allows to initialize the parameters of the network
