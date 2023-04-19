@@ -1,4 +1,5 @@
 from torch import nn, tensor, cat
+import torch.nn.functional as F
 
 ######################################################################        
 class Double_convolution_3D(nn.Module):
@@ -28,19 +29,18 @@ class UpSampling_3D(nn.Module):
     
 ###################################################################### 
 def concatenate(x1, x2):
-    #we have a 3d tensor (N, C, D, H, W)
-    #x2 must be the upsampled vector
+    # Assuming x1 and x2 have shape (B, C, D, H, W)
+    # x1 comes from the decoder and x2 is the tensor upsampled in the decoder
     
-    pad_size = tensor(x1.shape[2:5]) - tensor(x2.shape[2:5])
-    half_pad_size = pad_size//2
+    diff_size = tensor(x1.shape[2:]) - tensor(x2.shape[2:])
+    half_pad_size = diff_size//2
     
-    m = nn.ReflectionPad3d((half_pad_size[2],pad_size[2]-half_pad_size[2], 
-                     half_pad_size[1],pad_size[1]-half_pad_size[1],
-                     half_pad_size[0],pad_size[0]-half_pad_size[0]))
-    x2 = m(x2)
+    m = F.pad(x2, (half_pad_size[2], diff_size[2]-half_pad_size[2], 
+                   half_pad_size[1], diff_size[1]-half_pad_size[1],
+                   half_pad_size[0], diff_size[0]-half_pad_size[0]), mode='reflect')
     
-    return cat((x1,x2),dim=1)
-    
+    return cat((x1,m),dim=1)
+
 
 ######################################################################    
 class Encoder_3D(nn.Module):

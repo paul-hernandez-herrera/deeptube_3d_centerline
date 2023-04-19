@@ -16,7 +16,7 @@ class Classic_UNet_3D(nn.Module):
         self.decoder3 = unet3d_core.Decoder_3D(128 + 128, 128, 128)
         self.decoder2 = unet3d_core.Decoder_3D(64 + 64, 64, 64)
         self.decoder1 = unet3d_core.Decoder_3D(32 + 32, 32, 32)  
-        self.outConv  = nn.Conv3d(32, out_channels, kernel_size = (1,1,1), padding= 1)
+        self.outConv  = nn.Conv3d(32, out_channels, kernel_size = (1,1,1))
         
         
     def forward(self,x):
