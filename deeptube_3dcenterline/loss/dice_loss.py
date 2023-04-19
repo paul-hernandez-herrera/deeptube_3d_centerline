@@ -11,6 +11,8 @@ class DiceLoss(torch.nn.Module):
         # for 2D images D1, D2 are widht and height, while for 3D images is depth, widht, height 
         # We assume that the model returns the is not normalized to probabilities [0,1].
         
+        print(model_output.shape)
+        print(target.shape)
         # Normalizing to [0,1]
         output_normalized_0_1 = torch.sigmoid(model_output)
         

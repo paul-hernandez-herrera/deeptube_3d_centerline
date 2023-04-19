@@ -3,7 +3,7 @@ from pathlib import Path
 from torch.utils.tensorboard import SummaryWriter
 from .util.deeplearning_util import train_one_epoch, calculate_validation_loss, get_model_outputdir
 
-def train_model(self, model, 
+def train_model(model,
                 train_loader, 
                 loss_functions, 
                 optimizer, 

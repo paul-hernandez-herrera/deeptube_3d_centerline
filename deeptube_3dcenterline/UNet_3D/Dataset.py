@@ -32,7 +32,7 @@ class CustomImageDataset(Dataset):
         
         #img is a 3D image with [D,W,H], we only have one channel image, change the dimensions to [1,D,W,H]
         input_img = input_img.unsqueeze(0) if input_img.dim() ==  3 else input_img
-        target_img = target_img.unsqueeze(0) if target_img.dim() == 2 else target_img
+        target_img = target_img.unsqueeze(0) if target_img.dim() == 3 else target_img
         
         if self.data_augmentation_flag:
             input_img, target_img = self.data_augmentation_object.run(input_img, target_img)        
