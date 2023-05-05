@@ -31,6 +31,7 @@ def train_one_epoch(model, train_loader, optimizer, loss_functions, device):
         optimizer.step() # update the weights of models using the gradients and the given optimizer
         
         epoch_loss += loss.item()
+        
     epoch_loss /= len(train_loader.dataset)
         
     return epoch_loss
@@ -70,5 +71,7 @@ def load_model(model_path, device = 'cpu'):
     n_channels_target = state_dict[list(state_dict.keys())[-1]].size(0)
     
     model = Classic_UNet_3D(n_channels_input, n_channels_target).to(device= device)
+    
+    model.load_state_dict(state_dict)
     
     return model
