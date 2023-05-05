@@ -2,7 +2,7 @@ import numpy as np
 from torch import tensor
 from torch.utils.data import Dataset
 from pathlib import Path
-from .. import input_output as io
+from ..util import util as io
 
 class CustomImageDataset(Dataset):
     def __init__(self, folder_input, folder_target):
