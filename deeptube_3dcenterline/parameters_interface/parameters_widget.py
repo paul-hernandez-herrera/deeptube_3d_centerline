@@ -384,5 +384,39 @@ class parameters_lr_scheduler():
 
 ################################################################################        
             
-        
+def set_parameters_generate_training_set(obj):
+    print('------------------------------')
+    print('\033[47m' '\033[1m' 'REQUIRED PARAMETERS' '\033[0m')
+    print('------------------------------')
+
+    folder_imgs_path_w = ipwidget_basic.set_text('Folder images path:', 'Insert path here')   
+    folder_swc_path_w = ipwidget_basic.set_text('Folder swc files path:', 'Insert path here')
+
+    print('------------------------------')
+    print('\033[47m' '\033[1m' 'OPTIONAL PARAMETERS' '\033[0m')
+    print('------------------------------')
+    
+    folder_output_default = 'Default: "Folder images path"/training_set/'
+    folder_output_path_w = ipwidget_basic.set_text('Folder output path:', folder_output_default)
+    patch_size_img_w = ipwidget_basic.set_Int('Patch size (length x length): ', obj.patch_size_img)
+    number_patches_w = ipwidget_basic.set_Int('# sub-images foreground: ', obj.number_patches)
+    number_patches_random_w = ipwidget_basic.set_Int('# sub-images random pos: ', obj.number_patches)
+    radius_tubular_mask_w = ipwidget_basic.set_Int('Radius tubular mask (GT): ', obj.radius_tubular_mask)
+    draw_head_w = ipwidget_basic.set_checkbox('Draw head', obj.draw_head)
+    percentile_w = ipwidget_basic.set_intSlider('Percentile normalization',0,100, obj.norm_perc_low, obj.norm_perc_high)
+
+
+
+    parameters = {'folder_imgs_path_w' : folder_imgs_path_w,
+                  'folder_swc_path_w' : folder_swc_path_w,
+                  'patch_size_img_w': patch_size_img_w,
+                  'number_patches_w': number_patches_w,
+                  'number_patches_random_w': number_patches_random_w,
+                  'radius_tubular_mask_w': radius_tubular_mask_w,
+                  'percentile_w': percentile_w,
+                  'draw_head_w': draw_head_w,
+                  'folder_output_path_w': folder_output_path_w,
+                  'folder_output_default': folder_output_default}
+    
+    return parameters        
     
