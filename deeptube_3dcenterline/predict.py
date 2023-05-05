@@ -44,10 +44,6 @@ def predict_model(input_path, model= None, model_path = None, output_folder=None
             output_file_path = Path(output_folder, Path(img_file_path).stem + '_prob.tif')
             util.imwrite(output_file_path, 255 * probability)
             
-            # Save output probability map as image
-            output_file_path = Path(output_folder, Path(img_file_path).stem + '_input.tif')
-            util.imwrite(output_file_path, input_img)            
-            
             print(output_file_path)
             output_file_paths.append(output_file_path)
     return {"inputs": file_paths, "outputs": output_file_paths}
