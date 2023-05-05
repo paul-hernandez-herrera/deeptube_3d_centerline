@@ -1,7 +1,8 @@
 import numpy as np
 from pathlib import Path
-from . import input_output as io
+from .util import util as io
 import warnings
+from .util.preprocess import preprocess_image
 
 #from . import util
 
@@ -18,13 +19,18 @@ class construct_training_set():
         self.folder_output = ''
         self.patch_size_img = 128
         self.number_patches = 10
+        self.number_patches_random_pos = 2
         self.radius_tubular_mask = 4
         self.norm_perc_low = 1
         self.norm_perc_high = 99
         self.draw_head = True
         self.file_names = []
-        return 
         
+        return 
+
+    def set_number_patches_random_pos(self, val):
+        self.number_patches_random_pos = val
+        return        
 
     def set_folder_traces(self, val):
         self.folder_traces = Path(val)
@@ -103,15 +109,16 @@ class construct_training_set():
             print('Running stack: ' + str(index+1) + '/' + str(n_files))
             img, swc = self.__get_data(f_n)
             
-            #normalize data
-            img = self.percentile_normalization( img, self.norm_perc_low, self.norm_perc_high)
+            #preprocess_data
+            img = preprocess_image(img, percentile_range = [self.norm_perc_low, self.norm_perc_high], normalization_range = [0,1] )
+            img = np.squeeze(img)
             
             #generate the ground true as a tubular structure
             mask = self.construct_tubular_mask(np.array(img.shape), swc, self.radius_tubular_mask)
             
             if self.draw_head:
                 swc_head = swc[0:1,:]
-                mask = mask | self.construct_tubular_mask(np.array(img.shape), swc_head , 3*self.radius_tubular_mask)
+                mask = mask | self.construct_tubular_mask(np.array(img.shape), swc_head , int(2.5*self.radius_tubular_mask))
             
             #generate training set images containing the flagellum
             for i in np.random.choice(swc.shape[0], self.number_patches, replace=False):
@@ -122,6 +129,17 @@ class construct_training_set():
                 io.imwrite(Path(folder_out_imgs, "img_" + "{:06d}".format(count_img) + ".tif"), img_cropped)
                 io.imwrite(Path(folder_out_masks,"img_" + "{:06d}".format(count_img) + ".tif"), mask_cropped)
                 count_img+=1
+
+            #generate training set images containing the flagellum
+            for i in range(0, self.number_patches_random_pos):
+                left_upper_corner = np.array([np.random.choice(img.shape[2],1)[0], np.random.choice(img.shape[1],1)[0]])
+                #random shift of the left-corner
+                left_upper_corner = left_upper_corner + np.random.randint(low = -self.patch_size_img/2, high=self.patch_size_img/2, size=2, dtype=int)
+                img_cropped, mask_cropped = self.__crop_subvolumes(img, mask, left_upper_corner, self.patch_size_img)
+                io.imwrite(Path(folder_out_imgs, "img_" + "{:06d}".format(count_img) + ".tif"), img_cropped)
+                io.imwrite(Path(folder_out_masks,"img_" + "{:06d}".format(count_img) + ".tif"), mask_cropped)
+                count_img+=1                
+                
         print('------------------------------')
         print('\033[47m' '\033[1m' 'Algorithm has finished generating training set.' '\033[0m')
         print('------------------------------')  
