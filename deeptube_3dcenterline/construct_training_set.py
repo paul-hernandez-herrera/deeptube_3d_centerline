@@ -84,29 +84,28 @@ class construct_training_set():
     ## PRIVATE METHODS
     def core(self):
         
-        if self.folder_output=='':
-            # User did not set output folder to save training set. Construct default
-            self.set_folder_output(Path(self.folder_imgs, 'training_set'))
+        if not self.folder_output:
+            self.folder_output = Path(self.folder_imgs, 'training_set')
             
         #get all file names in directoty
         self.file_names = [p.stem for p in Path(self.folder_imgs).glob('*.tif')]
         
-        if len(self.file_names)==0:
-            warnings.warn('folder images does not contain tif files\n' + str(self.folder_imgs))
+        if not self.file_names:
+            warnings.warn(f'folder images does not contain tif files\n{self.folder_imgs}')
         else:
-            print('# images detected: ' +  str(len(self.file_names)) + '\n')
-            self.__verify_correct_traninig_set()             
+            print(f'# images detected: {len(self.file_names)}\n')
+            self.__verify_correct_traninig_set()            
         
         #make output folders
         folder_out_imgs = Path(self.folder_output, 'input')
         folder_out_masks = Path(self.folder_output, 'target')
-        
-        map(self.__create_folder_if_not_exist, (self.folder_output, folder_out_imgs, folder_out_masks))
+        [self.__create_folder_if_not_exist(path) for path in (self.folder_output, folder_out_imgs, folder_out_masks)]
 
         count_img = 0
         n_files = len(self.file_names)
+        
         for index, f_n in enumerate(self.file_names):
-            print('Running stack: ' + str(index+1) + '/' + str(n_files))
+            print(f'Running stack: {index + 1}/{n_files}')
             img, swc = self.__get_data(f_n)
             
             #preprocess_data
@@ -124,20 +123,20 @@ class construct_training_set():
             for i in np.random.choice(swc.shape[0], self.number_patches, replace=False):
                 left_upper_corner = swc[i,3:1:-1] - self.patch_size_img/2
                 #random shift of the left-corner
-                left_upper_corner = left_upper_corner + np.random.randint(low = -self.patch_size_img/2, high=self.patch_size_img/2, size=2, dtype=int)
+                left_upper_corner += np.random.randint(low = -self.patch_size_img/2, high=self.patch_size_img/2, size=2, dtype=int)
                 img_cropped, mask_cropped = self.__crop_subvolumes(img, mask, left_upper_corner, self.patch_size_img)
-                io.imwrite(Path(folder_out_imgs, "img_" + "{:06d}".format(count_img) + ".tif"), img_cropped)
-                io.imwrite(Path(folder_out_masks,"img_" + "{:06d}".format(count_img) + ".tif"), mask_cropped)
+                io.imwrite(Path(folder_out_imgs, f"img_{count_img:06}.tif"), img_cropped)
+                io.imwrite(Path(folder_out_masks, f"img_{count_img:06}.tif"), mask_cropped)
                 count_img+=1
 
             #generate training set images containing the flagellum
             for i in range(0, self.number_patches_random_pos):
                 left_upper_corner = np.array([np.random.choice(img.shape[2],1)[0], np.random.choice(img.shape[1],1)[0]])
                 #random shift of the left-corner
-                left_upper_corner = left_upper_corner + np.random.randint(low = -self.patch_size_img/2, high=self.patch_size_img/2, size=2, dtype=int)
+                left_upper_corner += np.random.randint(low = -self.patch_size_img/2, high=self.patch_size_img/2, size=2, dtype=int)
                 img_cropped, mask_cropped = self.__crop_subvolumes(img, mask, left_upper_corner, self.patch_size_img)
-                io.imwrite(Path(folder_out_imgs, "img_" + "{:06d}".format(count_img) + ".tif"), img_cropped)
-                io.imwrite(Path(folder_out_masks,"img_" + "{:06d}".format(count_img) + ".tif"), mask_cropped)
+                io.imwrite(Path(folder_out_imgs, f"img_{count_img:06}.tif"), img_cropped)
+                io.imwrite(Path(folder_out_masks, f"img_{count_img:06}.tif"), mask_cropped)
                 count_img+=1                
                 
         print('------------------------------')
@@ -151,7 +150,7 @@ class construct_training_set():
     def __create_folder_if_not_exist(self, folder_path):
         folder_path.mkdir(parents=True, exist_ok=True)
         
-    def __crop_subvolumes(self, img, mask, left_upper_corner, v_size):
+    def __crop_subvolumes(self, img, mask, left_upper_corner, v_size):    
         #check good boundary conditions
         left_upper_corner = np.int_(left_upper_corner)
         v_size = np.int_(v_size)
@@ -168,7 +167,7 @@ class construct_training_set():
         img_cropped = img[:,left_upper_corner[0]:left_upper_corner[0]+ v_size,left_upper_corner[1]:left_upper_corner[1]+v_size]
         mask_cropped = mask[:,left_upper_corner[0]:left_upper_corner[0]+ v_size,left_upper_corner[1]:left_upper_corner[1]+v_size]
         
-        return img_cropped, mask_cropped
+        return img_cropped, mask_cropped    
  
     
     def __get_data(self, file_name):
