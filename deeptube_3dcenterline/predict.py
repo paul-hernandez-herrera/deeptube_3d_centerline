@@ -29,7 +29,7 @@ def predict_model(input_path, model= None, model_path = None, output_folder=None
             
             #preprocess image if required
             if enable_preprocess:
-                input_img = preprocess_image(input_img, percentile_range = [1,99])            
+                input_img = preprocess_image(input_img, percentile_range = [0,100])            
                 
             # Load input image as tensor
             img = torch.tensor(input_img).unsqueeze(0).to(device=device)
@@ -42,7 +42,7 @@ def predict_model(input_path, model= None, model_path = None, output_folder=None
             
             # Save output probability map as image
             output_file_path = Path(output_folder, Path(img_file_path).stem + '_prob.tif')
-            util.imwrite(output_file_path, 255 * probability)
+            util.imwrite(output_file_path, (255 * probability).astype(np.uint8))
             
             print(output_file_path)
             output_file_paths.append(output_file_path)
