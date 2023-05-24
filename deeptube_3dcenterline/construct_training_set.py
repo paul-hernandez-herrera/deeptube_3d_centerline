@@ -123,7 +123,7 @@ class construct_training_set():
             for i in np.random.choice(swc.shape[0], self.number_patches, replace=False):
                 left_upper_corner = swc[i,3:1:-1] - self.patch_size_img/2
                 #random shift of the left-corner
-                left_upper_corner += np.random.randint(low = -self.patch_size_img/2, high=self.patch_size_img/2, size=2, dtype=int)
+                left_upper_corner += np.random.randint(low = -self.patch_size_img/4, high=self.patch_size_img/4, size=2, dtype=int)
                 img_cropped, mask_cropped = self.__crop_subvolumes(img, mask, left_upper_corner, self.patch_size_img)
                 io.imwrite(Path(folder_out_imgs, f"img_{count_img:06}.tif"), img_cropped)
                 io.imwrite(Path(folder_out_masks, f"img_{count_img:06}.tif"), mask_cropped)
@@ -131,9 +131,7 @@ class construct_training_set():
 
             #generate training set images containing the flagellum
             for i in range(0, self.number_patches_random_pos):
-                left_upper_corner = np.array([np.random.choice(img.shape[2],1)[0], np.random.choice(img.shape[1],1)[0]])
-                #random shift of the left-corner
-                left_upper_corner += np.random.randint(low = -self.patch_size_img/2, high=self.patch_size_img/2, size=2, dtype=int)
+                left_upper_corner = np.array([np.random.choice(img.shape[2]- self.patch_size_img,1)[0], np.random.choice(img.shape[1]- self.patch_size_img,1)[0]])
                 img_cropped, mask_cropped = self.__crop_subvolumes(img, mask, left_upper_corner, self.patch_size_img)
                 io.imwrite(Path(folder_out_imgs, f"img_{count_img:06}.tif"), img_cropped)
                 io.imwrite(Path(folder_out_masks, f"img_{count_img:06}.tif"), mask_cropped)
